@@ -1,0 +1,11 @@
+- hosts:
+  become: yes
+  tasks:
+    - name: delete old Deployment
+      command: kubectl delete -f /home/ec2-user/deployment.yml
+    - name: delete old Service
+      command: kubectl delete -f /home/ec2-user/service.yml
+    - name: Create news Deployment
+      command: kubectl create -f /home/ec2-user/deployment.yml
+    - name: Create news Service
+      command: kubectl create -f /home/ec2-user/service.yml

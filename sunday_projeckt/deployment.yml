@@ -1,0 +1,28 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: devops
+  labels:
+    app: devops
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devops
+  template:
+    metadata:
+      labels:
+        app: devops
+    spec:
+      containers:
+      - name: devops
+        image: devcloudninjas/projekt:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+      #   volumeMounts:
+      #   - name: devops-storage
+      #     mountPath: /var/lib/devops
+      # volumes:
+      # - name: devops-storage
+      #   emptyDir: {}

@@ -1,0 +1,7 @@
+region_name: us-east-1 # Our region
+instance_type: t2.micro # Our instance type
+ami: ami-051f8a213df8bc089 # Our AMI
+key_pair: ansible-project.pem # Our key pair
+count: 2 # Number of instances you want to launch
+sg_name: launch-wizard-10 # Security group name
+instance_name: ansible-managed-servers # Our instance name

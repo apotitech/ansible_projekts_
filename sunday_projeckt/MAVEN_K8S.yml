@@ -1,0 +1,82 @@
+---
+- name: Install Java, Maven, and Jenkins
+  hosts: jenkins_servers
+  become: yes
+  vars:
+    jenkins_repo_url: "http://pkg.jenkins.io/redhat-stable/jenkins.repo"
+    jenkins_repo_key_url: "https://pkg.jenkins.io/redhat-stable/jenkins.io.key"
+  tasks:
+    - name: Install Java OpenJDK 11
+      yum:
+        name: java-11-amazon-corretto-devel
+        state: present
+
+    - name: Install Maven
+      yum:
+        name: maven
+        state: present
+
+    - name: Add Jenkins repository
+      get_url:
+        url: "{{ jenkins_repo_url }}"
+        dest: "/etc/yum.repos.d/jenkins.repo"
+
+    - name: Import Jenkins repository GPG key directly
+      command: rpm --import "{{ jenkins_repo_key_url }}"
+
+    - name: Clean yum cache
+      command: yum clean all
+
+    - name: Install Jenkins with GPG check disabled
+      yum:
+        name: jenkins
+        state: present
+        disable_gpg_check: yes
+      notify: Start Jenkins service
+
+  handlers:
+    - name: Start Jenkins service
+      service:
+        name: jenkins
+        state: started
+        enabled: yes
+
+- name: Install Docker and Minikube
+  hosts: docker_minikube_servers
+  become: yes
+  vars:
+    docker_package_name: "docker"
+    minikube_url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64"
+  tasks:
+    - name: Install Docker
+      yum:
+        name: "{{ docker_package_name }}"
+        state: present
+      notify:
+        - Start Docker service
+
+    - name: Add Docker user group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Install Minikube
+      block:
+        - name: Download Minikube binary
+          get_url:
+            url: "{{ minikube_url }}"
+            dest: "/usr/local/bin/minikube"
+            mode: '0755'
+
+        - name: Install conntrack
+          yum:
+            name: conntrack
+            state: present
+
+  handlers:
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes

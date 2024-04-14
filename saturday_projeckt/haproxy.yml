@@ -1,0 +1,29 @@
+- hosts: localhost
+  become: yes
+  vars_files:
+    - aws_credentials.yml
+    - aws_ec2_configs.yml
+  tasks:
+    - name: Installing haproxy
+      package:
+        name: haproxy
+        state: present
+
+    - name: Templating /etc/haproxy/haproxy.cfg
+      template:
+        src: haproxy.j2
+        dest: /etc/haproxy/haproxy.cfg
+      register: template_result
+
+    - name: Validate HAProxy configuration
+      command: haproxy -c -f /etc/haproxy/haproxy.cfg
+      register: validation_result
+      failed_when: validation_result.rc != 0
+      changed_when: false
+      when: template_result is changed
+
+    - name: Starting haproxy service
+      service:
+        name: haproxy
+        state: started
+      when: validation_result.rc == 0

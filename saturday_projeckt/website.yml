@@ -1,0 +1,44 @@
+---
+- name: Setup Nginx Web Server and Deploy Website
+  hosts: localhost
+  become: yes
+  vars_files:
+    - aws_credentials.yml
+    - aws_ec2_configs.yml
+  tasks:
+    - name: Install Nginx
+      yum:
+        name: nginx
+        state: latest
+        update_cache: yes
+
+    - name: Remove default Nginx configuration
+      file:
+        path: /etc/nginx/nginx.conf
+        state: absent
+
+    - name: Copy Nginx configuration
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+
+    - name: Ensure Nginx is enabled and running
+      service:
+        name: nginx
+        enabled: yes
+        state: started
+
+    - name: Copy HTML page
+      template:
+        src: index.html.j2
+        dest: /usr/share/nginx/html/index.html
+
+    - name: Copy CSS stylesheet
+      copy:
+        src: styles.css
+        dest: /usr/share/nginx/html/styles.css
+
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted

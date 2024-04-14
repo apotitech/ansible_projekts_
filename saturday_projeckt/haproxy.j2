@@ -1,0 +1,27 @@
+## Add your own /etc/haproxy/haproxy.cfg file content
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    maxconn 4096
+
+defaults
+    log     global
+    option  httplog
+    timeout connect 5000ms
+    timeout client  50000ms
+    timeout server  50000ms
+
+frontend http_front
+    bind *:80
+    stats uri /haproxy?stats
+    default_backend http_back
+
+backend http_back
+    balance roundrobin
+    {% if private_ip %}
+    {% for ip in private_ip %}
+    server app{{ loop.index }} {{ ip }}:80 check
+    {% endfor %}
+    {% else %}
+    # No servers available
+    {% endif %}

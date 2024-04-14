@@ -19,7 +19,7 @@ pipeline {
             steps {
                 sshagent(['devops']) {
                     sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.85.243 cd /home/ec2-user/ '
-                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.85.243 docker build -t $JOB_NAME:v1.$BUILD_ID /home/ec2-user/sunday_projeckt/MAVEN_DOCKERIMAGE.dockerfile'
+                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.85.243 docker build -t $JOB_NAME:v1.$BUILD_ID /home/ec2-user/sunday_projeckt/Dockerfile'
                 }
             }
         }
